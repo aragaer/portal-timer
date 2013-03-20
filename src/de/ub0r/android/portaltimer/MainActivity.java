@@ -32,14 +32,14 @@ import android.util.Log;
 public class MainActivity extends Activity {
 	private static final String TAG = "portal-timer/ma";
 	public static final String INGRESS_PACKAGE = "com.nianticproject.ingress";
+	private static final int N_TIMERS = Timer.TIMER_ALL.length;
 
 	@SuppressLint("HandlerLeak")
 	private class UpdateHandler extends Handler {
 		@Override
 		public void dispatchMessage(final Message msg) {
-			mTimerView0.update();
-			mTimerView1.update();
-			mTimerView2.update();
+			for (int i = 0; i < N_TIMERS; i++)
+				mTimerViews[i].update();
 		}
 	}
 
@@ -48,8 +48,12 @@ public class MainActivity extends Activity {
 		public void run() {
 			while (mThread == this) {
 				mHandler.sendEmptyMessage(0);
-				long t = Math.max(mTimerView0.getTarget(),
-						Math.max(mTimerView1.getTarget(), mTimerView2.getTarget()));
+				long t = 0;
+				for (int i = 0; i < N_TIMERS; i++) {
+					final long target = mTimerViews[i].getTarget();
+					if (target > t)
+						t = target;
+				}
 				long d = (t > SystemClock.elapsedRealtime() ? 1000 : 5000);
 				try {
 					sleep(d);
@@ -60,7 +64,8 @@ public class MainActivity extends Activity {
 		}
 	}
 
-	private TimerView mTimerView0, mTimerView1, mTimerView2;
+	private final TimerView[] mTimerViews = new TimerView[N_TIMERS];
+	private static final int[] TimerViewIds = { R.id.timer0, R.id.timer1, R.id.timer2 };
 
 	UpdateHandler mHandler = null;
 	UpdateThread mThread = null;
@@ -70,12 +75,10 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		mTimerView0 = (TimerView) findViewById(R.id.timer0);
-		mTimerView1 = (TimerView) findViewById(R.id.timer1);
-		mTimerView2 = (TimerView) findViewById(R.id.timer2);
-		mTimerView0.setTimerKey(Timer.TIMER0);
-		mTimerView1.setTimerKey(Timer.TIMER1);
-		mTimerView2.setTimerKey(Timer.TIMER2);
+		for (int i = 0; i < N_TIMERS; i++) {
+			mTimerViews[i] = (TimerView) findViewById(TimerViewIds[i]);
+			mTimerViews[i].setTimerKey(Timer.TIMER_ALL[i]);
+		}
 
 		mHandler = new UpdateHandler();
 
