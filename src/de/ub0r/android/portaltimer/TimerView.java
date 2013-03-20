@@ -22,7 +22,7 @@ public class TimerView extends RelativeLayout implements OnClickListener {
 		findViewById(R.id.reset).setOnClickListener(this);
 		findViewById(R.id.start).setOnClickListener(this);
 
-		mTimer = new Timer(context, "timer");
+		mTimer = new Timer(context);
 		mText = (TextView) findViewById(R.id.timer);
 	}
 
@@ -37,6 +37,10 @@ public class TimerView extends RelativeLayout implements OnClickListener {
 			break;
 		}
 		update();
+	}
+
+	public void setTimerKey(final String key) {
+		mTimer.setKey(key);
 	}
 
 	public void update() {
