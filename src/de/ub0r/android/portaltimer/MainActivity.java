@@ -77,9 +77,12 @@ public class MainActivity extends Activity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		mTimer0 = new Timer(this, Timer.TIMER0);
-		mTimer1 = new Timer(this, Timer.TIMER1);
-		mTimer2 = new Timer(this, Timer.TIMER2);
+		mTimer0 = new Timer(this);
+		mTimer1 = new Timer(this);
+		mTimer2 = new Timer(this);
+		mTimer0.setKey(Timer.TIMER0);
+		mTimer1.setKey(Timer.TIMER1);
+		mTimer2.setKey(Timer.TIMER2);
 		mText0 = (TextView) findViewById(R.id.timer0);
 		mText1 = (TextView) findViewById(R.id.timer1);
 		mText2 = (TextView) findViewById(R.id.timer2);
