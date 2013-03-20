@@ -28,11 +28,8 @@ import android.os.Message;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.TextView;
 
-public class MainActivity extends Activity implements OnClickListener {
+public class MainActivity extends Activity {
 	private static final String TAG = "portal-timer/ma";
 	public static final String INGRESS_PACKAGE = "com.nianticproject.ingress";
 
@@ -40,12 +37,9 @@ public class MainActivity extends Activity implements OnClickListener {
 	private class UpdateHandler extends Handler {
 		@Override
 		public void dispatchMessage(final Message msg) {
-			mTimer0.refresh();
-			mTimer1.refresh();
-			mTimer2.refresh();
-			mText0.setText(mTimer0.getFormated());
-			mText1.setText(mTimer1.getFormated());
-			mText2.setText(mTimer2.getFormated());
+			mTimerView0.update();
+			mTimerView1.update();
+			mTimerView2.update();
 		}
 	}
 
@@ -54,8 +48,8 @@ public class MainActivity extends Activity implements OnClickListener {
 		public void run() {
 			while (mThread == this) {
 				mHandler.sendEmptyMessage(0);
-				long t = Math.max(mTimer0.getTarget(),
-						Math.max(mTimer1.getTarget(), mTimer2.getTarget()));
+				long t = Math.max(mTimerView0.getTarget(),
+						Math.max(mTimerView1.getTarget(), mTimerView2.getTarget()));
 				long d = (t > SystemClock.elapsedRealtime() ? 1000 : 5000);
 				try {
 					sleep(d);
@@ -66,8 +60,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		}
 	}
 
-	private Timer mTimer0, mTimer1, mTimer2;
-	private TextView mText0, mText1, mText2;
+	private TimerView mTimerView0, mTimerView1, mTimerView2;
 
 	UpdateHandler mHandler = null;
 	UpdateThread mThread = null;
@@ -77,22 +70,12 @@ public class MainActivity extends Activity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		mTimer0 = new Timer(this);
-		mTimer1 = new Timer(this);
-		mTimer2 = new Timer(this);
-		mTimer0.setKey(Timer.TIMER0);
-		mTimer1.setKey(Timer.TIMER1);
-		mTimer2.setKey(Timer.TIMER2);
-		mText0 = (TextView) findViewById(R.id.timer0);
-		mText1 = (TextView) findViewById(R.id.timer1);
-		mText2 = (TextView) findViewById(R.id.timer2);
-
-		findViewById(R.id.reset0).setOnClickListener(this);
-		findViewById(R.id.reset1).setOnClickListener(this);
-		findViewById(R.id.reset2).setOnClickListener(this);
-		findViewById(R.id.start0).setOnClickListener(this);
-		findViewById(R.id.start1).setOnClickListener(this);
-		findViewById(R.id.start2).setOnClickListener(this);
+		mTimerView0 = (TimerView) findViewById(R.id.timer0);
+		mTimerView1 = (TimerView) findViewById(R.id.timer1);
+		mTimerView2 = (TimerView) findViewById(R.id.timer2);
+		mTimerView0.setTimerKey(Timer.TIMER0);
+		mTimerView1.setTimerKey(Timer.TIMER1);
+		mTimerView2.setTimerKey(Timer.TIMER2);
 
 		mHandler = new UpdateHandler();
 
@@ -125,32 +108,5 @@ public class MainActivity extends Activity implements OnClickListener {
 		mThread = null;
 		t.interrupt();
 		super.onPause();
-	}
-
-	@Override
-	public void onClick(final View v) {
-		switch (v.getId()) {
-		case R.id.reset0:
-			mTimer0.reset(this);
-			break;
-		case R.id.reset1:
-			mTimer1.reset(this);
-			break;
-		case R.id.reset2:
-			mTimer2.reset(this);
-			break;
-		case R.id.start0:
-			mTimer0.start(this);
-			break;
-		case R.id.start1:
-			mTimer1.start(this);
-			break;
-		case R.id.start2:
-			mTimer2.start(this);
-			break;
-		default:
-			break;
-		}
-		mHandler.sendEmptyMessage(0);
 	}
 }
