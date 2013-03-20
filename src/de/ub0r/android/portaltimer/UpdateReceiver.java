@@ -60,7 +60,8 @@ public class UpdateReceiver extends BroadcastReceiver {
 		Log.d(TAG, "onReceive(" + a + ")");
 		for (String k : Timer.TIMER_ALL) {
 			if (k.equals(a)) {
-				Timer t = new Timer(context, k);
+				Timer t = new Timer(context);
+				t.setKey(k);
 				t.start(context);
 			}
 		}
@@ -80,7 +81,8 @@ public class UpdateReceiver extends BroadcastReceiver {
 		boolean alert = false;
 
 		for (String k : Timer.TIMER_ALL) {
-			Timer t = new Timer(context, k);
+			Timer t = new Timer(context);
+			t.setKey(k);
 			timers.add(t);
 			long tt = t.getTarget();
 

@@ -40,11 +40,14 @@ public class Timer {
 			TIMER2 };
 
 	private final SharedPreferences mPrefs;
-	private final String mKey;
+	private String mKey;
 	private long mTarget;
 
-	public Timer(final Context context, final String key) {
+	public Timer(final Context context) {
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+	}
+
+	public void setKey(final String key) {
 		mKey = key;
 		refresh();
 	}
