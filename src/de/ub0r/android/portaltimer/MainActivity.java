@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2013 Ilya Konovalov
  * Copyright (C) 2013 Felix Bechstein
  * 
  * This file is part of Portal Timer.
