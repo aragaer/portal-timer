@@ -28,11 +28,11 @@ import android.os.Message;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.TextView;
+import android.view.Gravity;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 
-public class MainActivity extends Activity implements OnClickListener {
+public class MainActivity extends Activity {
 	private static final String TAG = "portal-timer/ma";
 	public static final String INGRESS_PACKAGE = "com.nianticproject.ingress";
 
@@ -41,9 +41,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		@Override
 		public void dispatchMessage(final Message msg) {
 			for (int j = 0; j < Timer.TIMER_IDS.length; j++) {
-				mTimers[j].refresh();
-				if (mTextViews[j] != null) mTextViews[j].setText(mTimers[j]
-						.getFormated());
+				mTimerViews[j].update();
 			}
 		}
 	}
@@ -55,7 +53,7 @@ public class MainActivity extends Activity implements OnClickListener {
 				mHandler.sendEmptyMessage(0);
 				long t = 0;
 				for (int j = 0; j < Timer.TIMER_IDS.length; j++) {
-					t = Math.max(t, mTimers[j].getTarget());
+					t = Math.max(t, mTimerViews[j].getTarget());
 				}
 				long d = (t > SystemClock.elapsedRealtime() ? 1000 : 5000);
 				try {
@@ -67,8 +65,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		}
 	}
 
-	private Timer[] mTimers;
-	private TextView[] mTextViews;
+	private TimerView mTimerViews[];
 
 	UpdateHandler mHandler = null;
 	UpdateThread mThread = null;
@@ -78,7 +75,6 @@ public class MainActivity extends Activity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		Log.d(TAG, "onCreate()");
-
 		mHandler = new UpdateHandler();
 
 		if (getIntent().hasCategory(Intent.CATEGORY_LAUNCHER)
@@ -117,32 +113,14 @@ public class MainActivity extends Activity implements OnClickListener {
 		super.onPause();
 	}
 
-	@Override
-	public void onClick(final View v) {
-		int id = v.getId();
-		for (int j = 0; j < Timer.TIMER_IDS.length; j++) {
-			if (id == Timer.RESET_IDS[j]) {
-				mTimers[j].reset(this);
-				mHandler.sendEmptyMessage(0);
-				return;
-			} else if (id == Timer.START_IDS[j]) {
-				mTimers[j].start(this);
-				mHandler.sendEmptyMessage(0);
-				return;
-			}
-		}
-	}
-
 	private void initTimers() {
-		mTimers = new Timer[Timer.TIMER_IDS.length];
-		mTextViews = new TextView[Timer.TIMER_IDS.length];
-		for (int j = 0; j < mTimers.length; j++) {
-			mTimers[j] = new Timer(this, j);
-			mTextViews[j] = (TextView) findViewById(Timer.TIMER_IDS[j]);
-			if (mTextViews[j] != null) {
-				findViewById(Timer.RESET_IDS[j]).setOnClickListener(this);
-				findViewById(Timer.START_IDS[j]).setOnClickListener(this);
-			}
+		LayoutParams lp = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		mTimerViews = new TimerView[Timer.TIMER_IDS.length];
+		LinearLayout list = (LinearLayout) findViewById(R.id.list);
+		for (int j = 0; j < mTimerViews.length; j++) {
+			mTimerViews[j] = new TimerView(this, j);
+			mTimerViews[j].setGravity(Gravity.CENTER);
+			list.addView(mTimerViews[j], lp);
 		}
 	}
 }
